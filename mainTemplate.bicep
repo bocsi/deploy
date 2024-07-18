@@ -1,5 +1,5 @@
 // declare parameters - parameters.bicepparam
-param location string
+param location resourceGroup().location
 param deploy_gateway bool
 
 // resource names
