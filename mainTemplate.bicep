@@ -4,7 +4,6 @@ param deploy_gateway bool = false
 
 // resource names
 var prefixes = loadJsonContent('prefixes.json')
-var default_tag_name = 'environment'
 var hub_rg_name = '${prefixes.resourceGroup}-${prefixes.hub}-${location}'
 var hub_vnet_name = '${prefixes.virtualNetwork}-${prefixes.hub}-${location}'
 var hub_internal_subnet_name = '${prefixes.subnet}-${prefixes.hub}-${prefixes.internalTier}-${location}'
