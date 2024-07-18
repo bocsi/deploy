@@ -1,0 +1,2127 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.28.1.47646",
+      "templateHash": "2928711251494136696"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "deploy_gateway": {
+      "type": "bool"
+    }
+  },
+  "variables": {
+    "$fxv#0": {
+      "dataTier": "data",
+      "development": "dev",
+      "dmzTier": "dmz",
+      "hub": "adm",
+      "internalTier": "internal",
+      "keyVault": "kv",
+      "localNetworkGateway": "lgw",
+      "networkInterface": "nic",
+      "networkSecurityGroup": "nsg",
+      "peering": "peer",
+      "production": "prod",
+      "publicIP": "pip",
+      "publicIPConfiguration": "pipc",
+      "recoveryServicesVault": "rsv",
+      "resourceGroup": "rg",
+      "siteRecovery": "asr",
+      "staging": "stg",
+      "storageAccount": "sa",
+      "subnet": "sn",
+      "virtualMachine": "vm",
+      "virtualNetwork": "vn",
+      "virtualNetworkGateway": "vgw",
+      "vpnConnection": "con",
+      "vpnSite": "vst"
+    },
+    "prefixes": "[variables('$fxv#0')]",
+    "default_tag_name": "environment",
+    "hub_rg_name": "[format('{0}-{1}-{2}', variables('prefixes').resourceGroup, variables('prefixes').hub, parameters('location'))]",
+    "hub_vnet_name": "[format('{0}-{1}-{2}', variables('prefixes').virtualNetwork, variables('prefixes').hub, parameters('location'))]",
+    "hub_internal_subnet_name": "[format('{0}-{1}-{2}-{3}', variables('prefixes').subnet, variables('prefixes').hub, variables('prefixes').internalTier, parameters('location'))]",
+    "hub_nsg_name": "[format('{0}-{1}-{2}', variables('prefixes').networkSecurityGroup, variables('prefixes').hub, parameters('location'))]",
+    "production_rg_name": "[format('{0}-{1}-{2}', variables('prefixes').resourceGroup, variables('prefixes').production, parameters('location'))]",
+    "production_vnet_name": "[format('{0}-{1}-{2}', variables('prefixes').virtualNetwork, variables('prefixes').production, parameters('location'))]",
+    "production_nsg_name": "[format('{0}-{1}-{2}', variables('prefixes').networkSecurityGroup, variables('prefixes').production, parameters('location'))]",
+    "development_rg_name": "[format('{0}-{1}-{2}', variables('prefixes').resourceGroup, variables('prefixes').development, parameters('location'))]",
+    "development_vnet_name": "[format('{0}-{1}-{2}', variables('prefixes').virtualNetwork, variables('prefixes').development, parameters('location'))]",
+    "development_nsg_name": "[format('{0}-{1}-{2}', variables('prefixes').networkSecurityGroup, variables('prefixes').development, parameters('location'))]",
+    "staging_rg_name": "[format('{0}-{1}-{2}', variables('prefixes').resourceGroup, variables('prefixes').staging, parameters('location'))]",
+    "staging_vnet_name": "[format('{0}-{1}-{2}', variables('prefixes').virtualNetwork, variables('prefixes').staging, parameters('location'))]",
+    "staging_nsg_name": "[format('{0}-{1}-{2}', variables('prefixes').networkSecurityGroup, variables('prefixes').staging, parameters('location'))]",
+    "vgw_name": "[format('{0}-{1}-{2}', variables('prefixes').virtualNetworkGateway, variables('prefixes').hub, parameters('location'))]",
+    "vgw_ip_config_name": "[format('{0}-{1}-{2}', variables('prefixes').publicIPConfiguration, variables('prefixes').hub, parameters('location'))]",
+    "vgw_ip_name": "[format('{0}-{1}-{2}-{3}', variables('prefixes').publicIP, variables('prefixes').hub, variables('prefixes').virtualNetworkGateway, parameters('location'))]",
+    "hub_to_prod_peering_name": "[format('{0}-{1}-{2}-to-{3}-{4}', variables('prefixes').peering, variables('prefixes').hub, variables('prefixes').virtualNetwork, variables('prefixes').production, variables('prefixes').virtualNetwork)]",
+    "prod_to_hub_peering_name": "[format('{0}-{1}-{2}-to-{3}-{4}', variables('prefixes').peering, variables('prefixes').production, variables('prefixes').virtualNetwork, variables('prefixes').hub, variables('prefixes').virtualNetwork)]",
+    "hub_to_stg_peering_name": "[format('{0}-{1}-{2}-to-{3}-{4}', variables('prefixes').peering, variables('prefixes').hub, variables('prefixes').virtualNetwork, variables('prefixes').staging, variables('prefixes').virtualNetwork)]",
+    "stg_to_hub_peering_name": "[format('{0}-{1}-{2}-to-{3}-{4}', variables('prefixes').peering, variables('prefixes').staging, variables('prefixes').virtualNetwork, variables('prefixes').hub, variables('prefixes').virtualNetwork)]",
+    "hub_to_dev_peering_name": "[format('{0}-{1}-{2}-to-{3}-{4}', variables('prefixes').peering, variables('prefixes').hub, variables('prefixes').virtualNetwork, variables('prefixes').development, variables('prefixes').virtualNetwork)]",
+    "dev_to_hub_peering_name": "[format('{0}-{1}-{2}-to-{3}-{4}', variables('prefixes').peering, variables('prefixes').development, variables('prefixes').virtualNetwork, variables('prefixes').hub, variables('prefixes').virtualNetwork)]",
+    "hub_tags": {
+      "environment": "[variables('prefixes').hub]"
+    },
+    "production_tags": {
+      "environment": "[variables('prefixes').production]"
+    },
+    "development_tags": {
+      "environment": "[variables('prefixes').development]"
+    },
+    "staging_tags": {
+      "environment": "[variables('prefixes').staging]"
+    },
+    "hub_net_tags": {
+      "environment": "[variables('prefixes').hub]",
+      "function": "network"
+    },
+    "production_net_tags": {
+      "environment": "[variables('prefixes').production]",
+      "function": "network"
+    },
+    "development_net_tags": {
+      "environment": "[variables('prefixes').development]",
+      "function": "network"
+    },
+    "staging_net_tags": {
+      "environment": "[variables('prefixes').staging]",
+      "function": "network"
+    },
+    "vgw_sku": "VpnGw2",
+    "hub_vnet_address": "10.254.0.0/16",
+    "gateway_subnet_address": "10.254.1.0/24",
+    "hub_internal_subnet_address": "10.254.0.0/24",
+    "development_vnet_address": "10.220.0.0/16",
+    "production_vnet_address": "10.200.0.0/16",
+    "staging_vnet_address": "10.210.0.0/16",
+    "production_subnet_names": {
+      "data": "[format('{0}-{1}-{2}-{3}', variables('prefixes').subnet, variables('prefixes').production, variables('prefixes').dataTier, parameters('location'))]",
+      "internal": "[format('{0}-{1}-{2}-{3}', variables('prefixes').subnet, variables('prefixes').production, variables('prefixes').internalTier, parameters('location'))]",
+      "dmz": "[format('{0}-{1}-dmz-{2}', variables('prefixes').subnet, variables('prefixes').production, parameters('location'))]"
+    },
+    "production_subnets_prefixes": {
+      "data": "10.200.0.0/24",
+      "internal": "10.200.1.0/24",
+      "dmz": "10.200.2.0/24"
+    },
+    "development_subnet_names": {
+      "data": "[format('{0}-{1}-{2}-{3}', variables('prefixes').subnet, variables('prefixes').development, variables('prefixes').dataTier, parameters('location'))]",
+      "internal": "[format('{0}-{1}-{2}-{3}', variables('prefixes').subnet, variables('prefixes').development, variables('prefixes').internalTier, parameters('location'))]",
+      "dmz": "[format('{0}-{1}-dmz-{2}', variables('prefixes').subnet, variables('prefixes').development, parameters('location'))]"
+    },
+    "development_subnets_prefixes": {
+      "data": "10.220.0.0/24",
+      "internal": "10.220.1.0/24",
+      "dmz": "10.220.2.0/24"
+    },
+    "staging_subnet_names": {
+      "data": "[format('{0}-{1}-{2}-{3}', variables('prefixes').subnet, variables('prefixes').staging, variables('prefixes').dataTier, parameters('location'))]",
+      "internal": "[format('{0}-{1}-{2}-{3}', variables('prefixes').subnet, variables('prefixes').staging, variables('prefixes').internalTier, parameters('location'))]",
+      "dmz": "[format('{0}-{1}-dmz-{2}', variables('prefixes').subnet, variables('prefixes').staging, parameters('location'))]"
+    },
+    "staging_subnets_prefixes": {
+      "data": "10.210.0.0/24",
+      "internal": "10.210.1.0/24",
+      "dmz": "10.210.2.0/24"
+    },
+    "production_vnet_settings": {
+      "addressPrefixes": [
+        "[variables('production_vnet_address')]"
+      ],
+      "subnets": [
+        {
+          "name": "[variables('production_subnet_names').data]",
+          "addressPrefix": "[variables('production_subnets_prefixes').data]"
+        },
+        {
+          "name": "[variables('production_subnet_names').internal]",
+          "addressPrefix": "[variables('production_subnets_prefixes').internal]"
+        },
+        {
+          "name": "[variables('production_subnet_names').dmz]",
+          "addressPrefix": "[variables('production_subnets_prefixes').dmz]"
+        }
+      ]
+    },
+    "development_vnet_settings": {
+      "addressPrefixes": [
+        "[variables('development_vnet_address')]"
+      ],
+      "subnets": [
+        {
+          "name": "[variables('development_subnet_names').data]",
+          "addressPrefix": "[variables('development_subnets_prefixes').data]"
+        },
+        {
+          "name": "[variables('development_subnet_names').internal]",
+          "addressPrefix": "[variables('development_subnets_prefixes').internal]"
+        },
+        {
+          "name": "[variables('development_subnet_names').dmz]",
+          "addressPrefix": "[variables('development_subnets_prefixes').dmz]"
+        }
+      ]
+    },
+    "staging_vnet_settings": {
+      "addressPrefixes": [
+        "[variables('staging_vnet_address')]"
+      ],
+      "subnets": [
+        {
+          "name": "[variables('staging_subnet_names').data]",
+          "addressPrefix": "[variables('staging_subnets_prefixes').data]"
+        },
+        {
+          "name": "[variables('staging_subnet_names').internal]",
+          "addressPrefix": "[variables('staging_subnets_prefixes').internal]"
+        },
+        {
+          "name": "[variables('staging_subnet_names').dmz]",
+          "addressPrefix": "[variables('staging_subnets_prefixes').dmz]"
+        }
+      ]
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "pid-0dd0877a-bdc4-4f9d-8dc1-8a111778d92d-partnercenter",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('hub_rg_name')]",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "name": {
+            "value": "[variables('hub_rg_name')]"
+          },
+          "tags": {
+            "value": "[variables('hub_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "14357507868256745086"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "location": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2024-03-01', 'full').location]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('production_rg_name')]",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "name": {
+            "value": "[variables('production_rg_name')]"
+          },
+          "tags": {
+            "value": "[variables('production_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "14357507868256745086"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "location": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2024-03-01', 'full').location]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('development_rg_name')]",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "name": {
+            "value": "[variables('development_rg_name')]"
+          },
+          "tags": {
+            "value": "[variables('development_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "14357507868256745086"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "location": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2024-03-01', 'full').location]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('staging_rg_name')]",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "name": {
+            "value": "[variables('staging_rg_name')]"
+          },
+          "tags": {
+            "value": "[variables('staging_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "14357507868256745086"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "location": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2024-03-01', 'full').location]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('hub_nsg_name')]",
+      "resourceGroup": "[variables('hub_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nsg_location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name')), '2022-09-01').outputs.location.value]"
+          },
+          "nsg_name": {
+            "value": "[variables('hub_nsg_name')]"
+          },
+          "tags": {
+            "value": "[variables('hub_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "16866672276938705447"
+            }
+          },
+          "parameters": {
+            "nsg_name": {
+              "type": "string"
+            },
+            "nsg_location": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('nsg_name')]",
+              "location": "[parameters('nsg_location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "AllowICMP",
+                    "properties": {
+                      "description": "Allow ICMP traffic",
+                      "priority": 4096,
+                      "direction": "Inbound",
+                      "access": "Allow",
+                      "protocol": "Icmp",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationAddressPrefix": "*"
+                    }
+                  }
+                ]
+              },
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "nsg_id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('hub_vnet_name')]",
+      "resourceGroup": "[variables('hub_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "gateway_subnet_address": {
+            "value": "[variables('gateway_subnet_address')]"
+          },
+          "hub_internal_subnet_address": {
+            "value": "[variables('hub_internal_subnet_address')]"
+          },
+          "hub_internal_subnet_name": {
+            "value": "[variables('hub_internal_subnet_name')]"
+          },
+          "hub_nsg_name": {
+            "value": "[variables('hub_nsg_name')]"
+          },
+          "hub_vnet_address": {
+            "value": "[variables('hub_vnet_address')]"
+          },
+          "hub_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name')), '2022-09-01').outputs.location.value]"
+          },
+          "tags": {
+            "value": "[variables('hub_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "8547381164959054940"
+            }
+          },
+          "parameters": {
+            "hub_vnet_name": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "hub_vnet_address": {
+              "type": "string"
+            },
+            "gateway_subnet_address": {
+              "type": "string"
+            },
+            "hub_internal_subnet_name": {
+              "type": "string"
+            },
+            "hub_internal_subnet_address": {
+              "type": "string"
+            },
+            "hub_nsg_name": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('hub_vnet_name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('hub_vnet_address')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "GatewaySubnet",
+                    "properties": {
+                      "addressPrefix": "[parameters('gateway_subnet_address')]"
+                    }
+                  },
+                  {
+                    "name": "[parameters('hub_internal_subnet_name')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('hub_internal_subnet_address')]",
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('hub_nsg_name'))]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "tags": "[parameters('tags')]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_nsg_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]"
+      ]
+    },
+    {
+      "condition": "[parameters('deploy_gateway')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('vgw_name')]",
+      "resourceGroup": "[variables('hub_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "gateway_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "hub_rg_name": {
+            "value": "[variables('hub_rg_name')]"
+          },
+          "location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name')), '2022-09-01').outputs.location.value]"
+          },
+          "vgw_ip_config_name": {
+            "value": "[variables('vgw_ip_config_name')]"
+          },
+          "vgw_ip_name": {
+            "value": "[variables('vgw_ip_name')]"
+          },
+          "vgw_name": {
+            "value": "[variables('vgw_name')]"
+          },
+          "vgw_sku": {
+            "value": "[variables('vgw_sku')]"
+          },
+          "tags": {
+            "value": "[variables('hub_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "9769280072137082954"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "gateway_vnet_name": {
+              "type": "string"
+            },
+            "hub_rg_name": {
+              "type": "string"
+            },
+            "vgw_ip_name": {
+              "type": "string"
+            },
+            "vgw_name": {
+              "type": "string"
+            },
+            "vgw_sku": {
+              "type": "string",
+              "allowedValues": [
+                "VpnGw1",
+                "VpnGw2",
+                "VpnGw3",
+                "VpnGw4"
+              ]
+            },
+            "vgw_ip_config_name": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2023-02-01",
+              "name": "[parameters('vgw_ip_name')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              },
+              "tags": "[parameters('tags')]"
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworkGateways",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('vgw_name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "[parameters('vgw_ip_config_name')]",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hub_rg_name')), 'Microsoft.Network/virtualNetworks/subnets', parameters('gateway_vnet_name'), 'GatewaySubnet')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vgw_ip_name'))]"
+                      }
+                    }
+                  }
+                ],
+                "sku": {
+                  "name": "[parameters('vgw_sku')]",
+                  "tier": "[parameters('vgw_sku')]"
+                },
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "enableBgp": true
+              },
+              "tags": "[parameters('tags')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vgw_ip_name'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "vgw_ip": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vgw_ip_name')), '2023-02-01').ipAddress]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_vnet_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('staging_nsg_name')]",
+      "resourceGroup": "[variables('staging_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nsg_location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', variables('staging_rg_name')), '2022-09-01').outputs.location.value]"
+          },
+          "nsg_name": {
+            "value": "[variables('staging_nsg_name')]"
+          },
+          "tags": {
+            "value": "[variables('staging_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "16866672276938705447"
+            }
+          },
+          "parameters": {
+            "nsg_name": {
+              "type": "string"
+            },
+            "nsg_location": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('nsg_name')]",
+              "location": "[parameters('nsg_location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "AllowICMP",
+                    "properties": {
+                      "description": "Allow ICMP traffic",
+                      "priority": 4096,
+                      "direction": "Inbound",
+                      "access": "Allow",
+                      "protocol": "Icmp",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationAddressPrefix": "*"
+                    }
+                  }
+                ]
+              },
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "nsg_id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('staging_rg_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('staging_vnet_name')]",
+      "resourceGroup": "[variables('staging_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnet_name": {
+            "value": "[variables('staging_vnet_name')]"
+          },
+          "vnet_settings": {
+            "value": "[variables('staging_vnet_settings')]"
+          },
+          "nsg_name": {
+            "value": "[variables('staging_nsg_name')]"
+          },
+          "tags": {
+            "value": "[variables('staging_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "5851467624944713418"
+            }
+          },
+          "definitions": {
+            "_1.subnets": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "addressPrefix": {
+                  "type": "string"
+                }
+              },
+              "metadata": {
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../infrastructure/types.bicep"
+                }
+              }
+            },
+            "_1.vnet_settings": {
+              "type": "object",
+              "properties": {
+                "addressPrefixes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "subnets": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.subnets"
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../infrastructure/types.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "vnet_name": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "vnet_settings": {
+              "$ref": "#/definitions/_1.vnet_settings"
+            },
+            "nsg_name": {
+              "type": "string",
+              "metadata": {
+                "description": "Network security group name"
+              }
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": {
+            "networkSecurityGroup": {
+              "existing": true,
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('nsg_name')]"
+            },
+            "vnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('vnet_name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "copy": [
+                  {
+                    "name": "subnets",
+                    "count": "[length(parameters('vnet_settings').subnets)]",
+                    "input": {
+                      "name": "[parameters('vnet_settings').subnets[copyIndex('subnets')].name]",
+                      "properties": {
+                        "addressPrefix": "[parameters('vnet_settings').subnets[copyIndex('subnets')].addressPrefix]",
+                        "networkSecurityGroup": {
+                          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "addressSpace": {
+                  "addressPrefixes": "[parameters('vnet_settings').addressPrefixes]"
+                }
+              },
+              "tags": "[parameters('tags')]",
+              "dependsOn": [
+                "networkSecurityGroup"
+              ]
+            }
+          },
+          "outputs": {
+            "subnet_ids": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('vnet_settings').subnets)]",
+                "input": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), parameters('vnet_settings').subnets[copyIndex()].name)]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('staging_rg_name')), 'Microsoft.Resources/deployments', variables('staging_nsg_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('staging_rg_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('development_nsg_name')]",
+      "resourceGroup": "[variables('development_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nsg_location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', variables('development_rg_name')), '2022-09-01').outputs.location.value]"
+          },
+          "nsg_name": {
+            "value": "[variables('development_nsg_name')]"
+          },
+          "tags": {
+            "value": "[variables('development_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "16866672276938705447"
+            }
+          },
+          "parameters": {
+            "nsg_name": {
+              "type": "string"
+            },
+            "nsg_location": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('nsg_name')]",
+              "location": "[parameters('nsg_location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "AllowICMP",
+                    "properties": {
+                      "description": "Allow ICMP traffic",
+                      "priority": 4096,
+                      "direction": "Inbound",
+                      "access": "Allow",
+                      "protocol": "Icmp",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationAddressPrefix": "*"
+                    }
+                  }
+                ]
+              },
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "nsg_id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('development_rg_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('development_vnet_name')]",
+      "resourceGroup": "[variables('development_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnet_name": {
+            "value": "[variables('development_vnet_name')]"
+          },
+          "vnet_settings": {
+            "value": "[variables('development_vnet_settings')]"
+          },
+          "nsg_name": {
+            "value": "[variables('development_nsg_name')]"
+          },
+          "tags": {
+            "value": "[variables('development_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "5851467624944713418"
+            }
+          },
+          "definitions": {
+            "_1.subnets": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "addressPrefix": {
+                  "type": "string"
+                }
+              },
+              "metadata": {
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../infrastructure/types.bicep"
+                }
+              }
+            },
+            "_1.vnet_settings": {
+              "type": "object",
+              "properties": {
+                "addressPrefixes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "subnets": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.subnets"
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../infrastructure/types.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "vnet_name": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "vnet_settings": {
+              "$ref": "#/definitions/_1.vnet_settings"
+            },
+            "nsg_name": {
+              "type": "string",
+              "metadata": {
+                "description": "Network security group name"
+              }
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": {
+            "networkSecurityGroup": {
+              "existing": true,
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('nsg_name')]"
+            },
+            "vnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('vnet_name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "copy": [
+                  {
+                    "name": "subnets",
+                    "count": "[length(parameters('vnet_settings').subnets)]",
+                    "input": {
+                      "name": "[parameters('vnet_settings').subnets[copyIndex('subnets')].name]",
+                      "properties": {
+                        "addressPrefix": "[parameters('vnet_settings').subnets[copyIndex('subnets')].addressPrefix]",
+                        "networkSecurityGroup": {
+                          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "addressSpace": {
+                  "addressPrefixes": "[parameters('vnet_settings').addressPrefixes]"
+                }
+              },
+              "tags": "[parameters('tags')]",
+              "dependsOn": [
+                "networkSecurityGroup"
+              ]
+            }
+          },
+          "outputs": {
+            "subnet_ids": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('vnet_settings').subnets)]",
+                "input": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), parameters('vnet_settings').subnets[copyIndex()].name)]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('development_rg_name')), 'Microsoft.Resources/deployments', variables('development_nsg_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('development_rg_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('production_nsg_name')]",
+      "resourceGroup": "[variables('production_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nsg_location": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', variables('production_rg_name')), '2022-09-01').outputs.location.value]"
+          },
+          "nsg_name": {
+            "value": "[variables('production_nsg_name')]"
+          },
+          "tags": {
+            "value": "[variables('production_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "16866672276938705447"
+            }
+          },
+          "parameters": {
+            "nsg_name": {
+              "type": "string"
+            },
+            "nsg_location": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('nsg_name')]",
+              "location": "[parameters('nsg_location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "AllowICMP",
+                    "properties": {
+                      "description": "Allow ICMP traffic",
+                      "priority": 4096,
+                      "direction": "Inbound",
+                      "access": "Allow",
+                      "protocol": "Icmp",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationAddressPrefix": "*"
+                    }
+                  }
+                ]
+              },
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "nsg_id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('production_rg_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('production_vnet_name')]",
+      "resourceGroup": "[variables('production_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnet_name": {
+            "value": "[variables('production_vnet_name')]"
+          },
+          "vnet_settings": {
+            "value": "[variables('production_vnet_settings')]"
+          },
+          "nsg_name": {
+            "value": "[variables('production_nsg_name')]"
+          },
+          "tags": {
+            "value": "[variables('production_net_tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "5851467624944713418"
+            }
+          },
+          "definitions": {
+            "_1.subnets": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "addressPrefix": {
+                  "type": "string"
+                }
+              },
+              "metadata": {
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../infrastructure/types.bicep"
+                }
+              }
+            },
+            "_1.vnet_settings": {
+              "type": "object",
+              "properties": {
+                "addressPrefixes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "subnets": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/_1.subnets"
+                  }
+                }
+              },
+              "metadata": {
+                "__bicep_imported_from!": {
+                  "sourceTemplate": "../infrastructure/types.bicep"
+                }
+              }
+            }
+          },
+          "parameters": {
+            "vnet_name": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "vnet_settings": {
+              "$ref": "#/definitions/_1.vnet_settings"
+            },
+            "nsg_name": {
+              "type": "string",
+              "metadata": {
+                "description": "Network security group name"
+              }
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "resources": {
+            "networkSecurityGroup": {
+              "existing": true,
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('nsg_name')]"
+            },
+            "vnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2023-06-01",
+              "name": "[parameters('vnet_name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "copy": [
+                  {
+                    "name": "subnets",
+                    "count": "[length(parameters('vnet_settings').subnets)]",
+                    "input": {
+                      "name": "[parameters('vnet_settings').subnets[copyIndex('subnets')].name]",
+                      "properties": {
+                        "addressPrefix": "[parameters('vnet_settings').subnets[copyIndex('subnets')].addressPrefix]",
+                        "networkSecurityGroup": {
+                          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsg_name'))]"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "addressSpace": {
+                  "addressPrefixes": "[parameters('vnet_settings').addressPrefixes]"
+                }
+              },
+              "tags": "[parameters('tags')]",
+              "dependsOn": [
+                "networkSecurityGroup"
+              ]
+            }
+          },
+          "outputs": {
+            "subnet_ids": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('vnet_settings').subnets)]",
+                "input": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), parameters('vnet_settings').subnets[copyIndex()].name)]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('production_rg_name')), 'Microsoft.Resources/deployments', variables('production_nsg_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('production_rg_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('hub_to_prod_peering_name')]",
+      "resourceGroup": "[variables('hub_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "allow_gateway_transit": {
+            "value": true
+          },
+          "from_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "peering_name": {
+            "value": "[variables('hub_to_prod_peering_name')]"
+          },
+          "to_resource_group_name": {
+            "value": "[variables('production_rg_name')]"
+          },
+          "to_vnet_name": {
+            "value": "[variables('production_vnet_name')]"
+          },
+          "use_remote_gateway": {
+            "value": false
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "534645454381784323"
+            }
+          },
+          "parameters": {
+            "to_resource_group_name": {
+              "type": "string"
+            },
+            "to_vnet_name": {
+              "type": "string"
+            },
+            "from_vnet_name": {
+              "type": "string"
+            },
+            "peering_name": {
+              "type": "string"
+            },
+            "use_remote_gateway": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If remote gateways can be used on this virtual network."
+              }
+            },
+            "allow_gateway_transit": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If gateway links can be used in remote virtual networking to link to this virtual network."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2022-11-01",
+              "name": "[format('{0}/{1}', parameters('from_vnet_name'), parameters('peering_name'))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "useRemoteGateways": "[parameters('use_remote_gateway')]",
+                "allowGatewayTransit": "[parameters('allow_gateway_transit')]",
+                "remoteVirtualNetwork": {
+                  "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('to_resource_group_name')), 'Microsoft.Network/virtualNetworks', parameters('to_vnet_name'))]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_vnet_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('production_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('production_rg_name')), 'Microsoft.Resources/deployments', variables('production_vnet_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('prod_to_hub_peering_name')]",
+      "resourceGroup": "[variables('production_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "allow_gateway_transit": {
+            "value": false
+          },
+          "from_vnet_name": {
+            "value": "[variables('production_vnet_name')]"
+          },
+          "peering_name": {
+            "value": "[variables('prod_to_hub_peering_name')]"
+          },
+          "to_resource_group_name": {
+            "value": "[variables('hub_rg_name')]"
+          },
+          "to_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "use_remote_gateway": {
+            "value": "[parameters('deploy_gateway')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "534645454381784323"
+            }
+          },
+          "parameters": {
+            "to_resource_group_name": {
+              "type": "string"
+            },
+            "to_vnet_name": {
+              "type": "string"
+            },
+            "from_vnet_name": {
+              "type": "string"
+            },
+            "peering_name": {
+              "type": "string"
+            },
+            "use_remote_gateway": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If remote gateways can be used on this virtual network."
+              }
+            },
+            "allow_gateway_transit": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If gateway links can be used in remote virtual networking to link to this virtual network."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2022-11-01",
+              "name": "[format('{0}/{1}', parameters('from_vnet_name'), parameters('peering_name'))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "useRemoteGateways": "[parameters('use_remote_gateway')]",
+                "allowGatewayTransit": "[parameters('allow_gateway_transit')]",
+                "remoteVirtualNetwork": {
+                  "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('to_resource_group_name')), 'Microsoft.Network/virtualNetworks', parameters('to_vnet_name'))]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_vnet_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('production_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('production_rg_name')), 'Microsoft.Resources/deployments', variables('production_vnet_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('vgw_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('hub_to_stg_peering_name')]",
+      "resourceGroup": "[variables('hub_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "allow_gateway_transit": {
+            "value": true
+          },
+          "from_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "peering_name": {
+            "value": "[variables('hub_to_stg_peering_name')]"
+          },
+          "to_resource_group_name": {
+            "value": "[variables('staging_rg_name')]"
+          },
+          "to_vnet_name": {
+            "value": "[variables('staging_vnet_name')]"
+          },
+          "use_remote_gateway": {
+            "value": false
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "534645454381784323"
+            }
+          },
+          "parameters": {
+            "to_resource_group_name": {
+              "type": "string"
+            },
+            "to_vnet_name": {
+              "type": "string"
+            },
+            "from_vnet_name": {
+              "type": "string"
+            },
+            "peering_name": {
+              "type": "string"
+            },
+            "use_remote_gateway": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If remote gateways can be used on this virtual network."
+              }
+            },
+            "allow_gateway_transit": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If gateway links can be used in remote virtual networking to link to this virtual network."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2022-11-01",
+              "name": "[format('{0}/{1}', parameters('from_vnet_name'), parameters('peering_name'))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "useRemoteGateways": "[parameters('use_remote_gateway')]",
+                "allowGatewayTransit": "[parameters('allow_gateway_transit')]",
+                "remoteVirtualNetwork": {
+                  "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('to_resource_group_name')), 'Microsoft.Network/virtualNetworks', parameters('to_vnet_name'))]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_vnet_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('staging_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('staging_rg_name')), 'Microsoft.Resources/deployments', variables('staging_vnet_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('stg_to_hub_peering_name')]",
+      "resourceGroup": "[variables('staging_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "allow_gateway_transit": {
+            "value": false
+          },
+          "from_vnet_name": {
+            "value": "[variables('staging_vnet_name')]"
+          },
+          "peering_name": {
+            "value": "[variables('stg_to_hub_peering_name')]"
+          },
+          "to_resource_group_name": {
+            "value": "[variables('hub_rg_name')]"
+          },
+          "to_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "use_remote_gateway": {
+            "value": "[parameters('deploy_gateway')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "534645454381784323"
+            }
+          },
+          "parameters": {
+            "to_resource_group_name": {
+              "type": "string"
+            },
+            "to_vnet_name": {
+              "type": "string"
+            },
+            "from_vnet_name": {
+              "type": "string"
+            },
+            "peering_name": {
+              "type": "string"
+            },
+            "use_remote_gateway": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If remote gateways can be used on this virtual network."
+              }
+            },
+            "allow_gateway_transit": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If gateway links can be used in remote virtual networking to link to this virtual network."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2022-11-01",
+              "name": "[format('{0}/{1}', parameters('from_vnet_name'), parameters('peering_name'))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "useRemoteGateways": "[parameters('use_remote_gateway')]",
+                "allowGatewayTransit": "[parameters('allow_gateway_transit')]",
+                "remoteVirtualNetwork": {
+                  "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('to_resource_group_name')), 'Microsoft.Network/virtualNetworks', parameters('to_vnet_name'))]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_vnet_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('staging_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('staging_rg_name')), 'Microsoft.Resources/deployments', variables('staging_vnet_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('vgw_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('hub_to_dev_peering_name')]",
+      "resourceGroup": "[variables('hub_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "allow_gateway_transit": {
+            "value": true
+          },
+          "from_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "peering_name": {
+            "value": "[variables('hub_to_dev_peering_name')]"
+          },
+          "to_resource_group_name": {
+            "value": "[variables('development_rg_name')]"
+          },
+          "to_vnet_name": {
+            "value": "[variables('development_vnet_name')]"
+          },
+          "use_remote_gateway": {
+            "value": false
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "534645454381784323"
+            }
+          },
+          "parameters": {
+            "to_resource_group_name": {
+              "type": "string"
+            },
+            "to_vnet_name": {
+              "type": "string"
+            },
+            "from_vnet_name": {
+              "type": "string"
+            },
+            "peering_name": {
+              "type": "string"
+            },
+            "use_remote_gateway": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If remote gateways can be used on this virtual network."
+              }
+            },
+            "allow_gateway_transit": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If gateway links can be used in remote virtual networking to link to this virtual network."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2022-11-01",
+              "name": "[format('{0}/{1}', parameters('from_vnet_name'), parameters('peering_name'))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "useRemoteGateways": "[parameters('use_remote_gateway')]",
+                "allowGatewayTransit": "[parameters('allow_gateway_transit')]",
+                "remoteVirtualNetwork": {
+                  "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('to_resource_group_name')), 'Microsoft.Network/virtualNetworks', parameters('to_vnet_name'))]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('development_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('development_rg_name')), 'Microsoft.Resources/deployments', variables('development_vnet_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_vnet_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('dev_to_hub_peering_name')]",
+      "resourceGroup": "[variables('development_rg_name')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "allow_gateway_transit": {
+            "value": false
+          },
+          "from_vnet_name": {
+            "value": "[variables('development_vnet_name')]"
+          },
+          "peering_name": {
+            "value": "[variables('dev_to_hub_peering_name')]"
+          },
+          "to_resource_group_name": {
+            "value": "[variables('hub_rg_name')]"
+          },
+          "to_vnet_name": {
+            "value": "[variables('hub_vnet_name')]"
+          },
+          "use_remote_gateway": {
+            "value": "[parameters('deploy_gateway')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "534645454381784323"
+            }
+          },
+          "parameters": {
+            "to_resource_group_name": {
+              "type": "string"
+            },
+            "to_vnet_name": {
+              "type": "string"
+            },
+            "from_vnet_name": {
+              "type": "string"
+            },
+            "peering_name": {
+              "type": "string"
+            },
+            "use_remote_gateway": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If remote gateways can be used on this virtual network."
+              }
+            },
+            "allow_gateway_transit": {
+              "type": "bool",
+              "metadata": {
+                "description": "true or false: If gateway links can be used in remote virtual networking to link to this virtual network."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2022-11-01",
+              "name": "[format('{0}/{1}', parameters('from_vnet_name'), parameters('peering_name'))]",
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "useRemoteGateways": "[parameters('use_remote_gateway')]",
+                "allowGatewayTransit": "[parameters('allow_gateway_transit')]",
+                "remoteVirtualNetwork": {
+                  "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('to_resource_group_name')), 'Microsoft.Network/virtualNetworks', parameters('to_vnet_name'))]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('development_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('development_rg_name')), 'Microsoft.Resources/deployments', variables('development_vnet_name'))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', variables('hub_rg_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('hub_vnet_name'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hub_rg_name')), 'Microsoft.Resources/deployments', variables('vgw_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "requireTagsOnResources",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "description": {
+            "value": "Enforces existence of a tag. Does not apply to resource groups."
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "nonComplianceMessage": {
+            "value": "All resoruces must be tagged"
+          },
+          "policyAssignmentName": {
+            "value": "requireTagsOnResources"
+          },
+          "policyDefinitionID": {
+            "value": "/providers/Microsoft.Authorization/policyDefinitions/871b6d14-10aa-478d-b590-94f262ecfa99"
+          },
+          "policyDisplayName": {
+            "value": "Require a tag on resources"
+          },
+          "tagName": {
+            "value": "[variables('default_tag_name')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.28.1.47646",
+              "templateHash": "5986820852422675897"
+            }
+          },
+          "parameters": {
+            "description": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "policyAssignmentName": {
+              "type": "string"
+            },
+            "policyDefinitionID": {
+              "type": "string"
+            },
+            "policyDisplayName": {
+              "type": "string"
+            },
+            "nonComplianceMessage": {
+              "type": "string"
+            },
+            "tagName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2023-04-01",
+              "name": "[parameters('policyAssignmentName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "policyDefinitionId": "[parameters('policyDefinitionID')]",
+                "description": "[parameters('description')]",
+                "displayName": "[parameters('policyDisplayName')]",
+                "parameters": {
+                  "tagName": {
+                    "value": "[parameters('tagName')]"
+                  }
+                },
+                "nonComplianceMessages": [
+                  {
+                    "message": "[parameters('nonComplianceMessage')]"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
