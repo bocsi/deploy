@@ -1,6 +1,6 @@
 // declare parameters - parameters.bicepparam
-param location resourceGroup().location
-param deploy_gateway bool
+param location string =  resourceGroup().location
+param deploy_gateway bool = false
 
 // resource names
 var prefixes = loadJsonContent('prefixes.json')
