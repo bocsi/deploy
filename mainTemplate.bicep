@@ -1,6 +1,6 @@
 // declare parameters - parameters.bicepparam
 targetScope =  'subscription'
-param location string = 'westus'
+param location string = 'eastus'
 param deploy_gateway bool = false
 
 // resource names
