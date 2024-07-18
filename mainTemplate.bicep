@@ -199,7 +199,6 @@ module hub_nsg 'modules/nsg.bicep' = {
     nsg_name: hub_nsg_name
     tags: hub_net_tags
   }
-  dependsOn: [hub_rg]
 }
 
 module hub_vnet 'modules/hub-vnet.bicep' = {
@@ -242,7 +241,6 @@ module staging_nsg 'modules/nsg.bicep' = {
     nsg_name: staging_nsg_name
     tags: staging_net_tags
   }
-  dependsOn: [staging_rg]
 }
 module staging_vnet 'modules/vnet.bicep' = {
   name: staging_vnet_name
@@ -264,7 +262,6 @@ module development_nsg 'modules/nsg.bicep' = {
     nsg_name: development_nsg_name
     tags: development_net_tags
   }
-  dependsOn: [development_rg]
 }
 module development_vnet 'modules/vnet.bicep' = {
   name: development_vnet_name
@@ -286,7 +283,6 @@ module production_nsg 'modules/nsg.bicep' = {
     nsg_name: production_nsg_name
     tags: production_net_tags
   }
-  dependsOn: [production_rg]
 }
 module production_vnet 'modules/vnet.bicep' = {
   name: production_vnet_name
