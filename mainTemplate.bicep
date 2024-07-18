@@ -395,19 +395,6 @@ module peering_dev_to_hub 'modules/peering.bicep' = {
 
 // Policy Assignments
 // Require a tag on resources
-module require_tags_on_resources 'modules/policy-assignment.bicep' = {
-  scope: subscription()
-  name: 'requireTagsOnResources'
-  params: {
-    description: 'Enforces existence of a tag. Does not apply to resource groups.'
-    location: location
-    nonComplianceMessage: 'All resoruces must be tagged'
-    policyAssignmentName: 'requireTagsOnResources'
-    policyDefinitionID: '/providers/Microsoft.Authorization/policyDefinitions/871b6d14-10aa-478d-b590-94f262ecfa99'
-    policyDisplayName: 'Require a tag on resources'
-    tagName: default_tag_name
-  }
-}
 
 resource pid_0dd0877a_bdc4_4f9d_8dc1_8a111778d92d_partnercenter 'Microsoft.Resources/deployments@2020-06-01' = {
   name: 'pid-0dd0877a-bdc4-4f9d-8dc1-8a111778d92d-partnercenter'
