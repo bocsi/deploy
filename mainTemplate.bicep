@@ -1,5 +1,6 @@
 // declare parameters - parameters.bicepparam
-param location string =  resourceGroup().location
+targetScope =  'subscription'
+param location string
 param deploy_gateway bool = false
 
 // resource names
@@ -199,6 +200,7 @@ module hub_nsg 'modules/nsg.bicep' = {
     nsg_name: hub_nsg_name
     tags: hub_net_tags
   }
+  dependsOn: [hub_rg]
 }
 
 module hub_vnet 'modules/hub-vnet.bicep' = {
@@ -241,6 +243,7 @@ module staging_nsg 'modules/nsg.bicep' = {
     nsg_name: staging_nsg_name
     tags: staging_net_tags
   }
+  dependsOn: [staging_rg]
 }
 module staging_vnet 'modules/vnet.bicep' = {
   name: staging_vnet_name
@@ -262,6 +265,7 @@ module development_nsg 'modules/nsg.bicep' = {
     nsg_name: development_nsg_name
     tags: development_net_tags
   }
+  dependsOn: [development_rg]
 }
 module development_vnet 'modules/vnet.bicep' = {
   name: development_vnet_name
@@ -283,6 +287,7 @@ module production_nsg 'modules/nsg.bicep' = {
     nsg_name: production_nsg_name
     tags: production_net_tags
   }
+  dependsOn: [production_rg]
 }
 module production_vnet 'modules/vnet.bicep' = {
   name: production_vnet_name
@@ -388,9 +393,6 @@ module peering_dev_to_hub 'modules/peering.bicep' = {
   dependsOn: deploy_gateway ? [virtual_network_gateway] : [development_vnet]
 }
 
-// Policy Assignments
-// Require a tag on resources
-
 resource pid_0dd0877a_bdc4_4f9d_8dc1_8a111778d92d_partnercenter 'Microsoft.Resources/deployments@2020-06-01' = {
   name: 'pid-0dd0877a-bdc4-4f9d-8dc1-8a111778d92d-partnercenter'
   properties: {
@@ -401,4 +403,5 @@ resource pid_0dd0877a_bdc4_4f9d_8dc1_8a111778d92d_partnercenter 'Microsoft.Resou
       resources: []
     }
   }
+  location: location
 }
