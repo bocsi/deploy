@@ -392,16 +392,3 @@ module peering_dev_to_hub 'modules/peering.bicep' = {
   }
   dependsOn: deploy_gateway ? [virtual_network_gateway] : [development_vnet]
 }
-
-resource pid_0dd0877a_bdc4_4f9d_8dc1_8a111778d92d_partnercenter 'Microsoft.Resources/deployments@2020-06-01' = {
-  name: 'pid-0dd0877a-bdc4-4f9d-8dc1-8a111778d92d-partnercenter'
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
-      contentVersion: '1.0.0.0'
-      resources: []
-    }
-  }
-  location: location
-}
